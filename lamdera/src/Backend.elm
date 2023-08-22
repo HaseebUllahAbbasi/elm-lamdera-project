@@ -6,6 +6,7 @@ import Task
 import Types exposing (..)
 
 
+
 app =
     Lamdera.backend
         { init = init
@@ -21,7 +22,7 @@ type alias Model =
 
 init : ( Model, Cmd BackendMsg )
 init =
-    ( { messages = [] }, Cmd.none )
+    ( { colors = [] }, Cmd.none )
 
 
 update : BackendMsg -> Model -> ( Model, Cmd BackendMsg )
@@ -32,7 +33,7 @@ update msg model =
             ( model
             , Cmd.batch
                 [ broadcast (MessageReceived (Joined clientId))
-                , sendToFrontend clientId (HistoryReceived model.messages)
+                , sendToFrontend clientId (HistoryReceived model.colors)
                 ]
             )
 
@@ -40,16 +41,14 @@ update msg model =
         ClientDisconnected sessionId clientId ->
             ( model, broadcast (MessageReceived (Left clientId)) )
 
-        BNoop ->
-            ( model, Cmd.none )
-
+        
 
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
 updateFromFrontend sessionId clientId msg model =
     case msg of
-        -- A client has sent us a new message! Add it to our messages list, and broadcast it to everyone.
+        -- A client has sent us a new message! Add it to our colors list, and broadcast it to everyone.
         MsgSubmitted text ->
-            ( { model | messages = Message clientId text :: model.messages }
+            ( { model | colors = Message clientId text :: model.colors }
             , broadcast (MessageReceived (Message clientId text))
             )
 

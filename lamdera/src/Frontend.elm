@@ -11,12 +11,7 @@ import Task
 import Types exposing (..)
 
 
-{-| Lamdera applications define 'app' instead of 'main'.
 
-Lamdera.frontend is the same as Browser.application with the
-additional update function; updateFromBackend.
-
--}
 app =
     Lamdera.frontend
         { init = \_ _ -> init
@@ -24,7 +19,7 @@ app =
         , updateFromBackend = updateFromBackend
         , view =
             \model ->
-                { title = "Lamdera chat demo"
+                { title = "Muliplayer Spots"
                 , body = [ view model ]
                 }
         , subscriptions = \m -> Sub.none
@@ -39,96 +34,81 @@ type alias Model =
 
 init : ( Model, Cmd FrontendMsg )
 init =
-    ( { messages = [], messageFieldContent = "" }, Cmd.none )
+    ( { colors = [], messageFieldContent = "" }, Cmd.none )
 
 
-{-| This is the normal frontend update function. It handles all messages that can occur on the frontend.
--}
+
 update : FrontendMsg -> Model -> ( Model, Cmd FrontendMsg )
 update msg model =
     case msg of
-        -- User has changed the contents of the message field
-        MessageFieldChanged s ->
-            ( { model | messageFieldContent = s }, Cmd.none )
+        
 
-        -- User has hit the Send button
-        MessageSubmitted ->
-            ( { model | messageFieldContent = "", messages = model.messages }
+        SendColor color ->
+            ( { model | messageFieldContent = "", colors = model.colors }
             , Cmd.batch
-                [ Lamdera.sendToBackend (MsgSubmitted model.messageFieldContent)
-                , focusMessageInput
-                , scrollChatToBottom
+                [ Lamdera.sendToBackend (MsgSubmitted color)
+                , scrollColorsToBottom
                 ]
             )
-
+    
         -- Empty msg that does no operations
         Noop ->
             ( model, Cmd.none )
 
 
-{-| This is the added update function. It handles all messages that can arrive from the backend.
+{-| This is the added update function. It handles all colors that can arrive from the backend.
 -}
 updateFromBackend : ToFrontend -> Model -> ( Model, Cmd FrontendMsg )
 updateFromBackend msg model =
     case msg of
-        HistoryReceived messages ->
-            ( { model | messages = messages }, Cmd.batch [ scrollChatToBottom ] )
+        HistoryReceived colors ->
+            ( { model | colors = colors }, Cmd.batch [ scrollColorsToBottom ] )
 
         MessageReceived message ->
-            ( { model | messages = message :: model.messages }, Cmd.batch [ scrollChatToBottom ] )
+            ( { model | colors = message :: model.colors }, Cmd.batch [ scrollColorsToBottom ] )
 
 
 view : Model -> Html FrontendMsg
 view model =
     div (style "padding" "10px" :: fontStyles)
-        [ model.messages
+        [ model.colors
             |> List.reverse
-            |> List.map viewMessage
+            |> List.map viewColor
             |> div
                 [ id "message-box"
-                , style "height" "400px"
+                , style "min-height" "200px"
+                , style "border" "1px solid black"
                 , style "overflow" "auto"
-                , style "margin-bottom" "15px"
+                -- , style "margin-bottom" "15px"
                 ]
-        , chatInput model MessageFieldChanged
-        , button (onClick MessageSubmitted :: fontStyles) [ text "Send" ]
+        , chatInput model SendColor
         ]
 
 
 chatInput : Model -> (String -> FrontendMsg) -> Html FrontendMsg
 chatInput model msg =
-    input
-        ([ id "message-input"
-         , type_ "text"
-         , onInput msg
-         , onEnter MessageSubmitted
-         , placeholder model.messageFieldContent
-         , value model.messageFieldContent
-         , style "width" "300px"
-         , autofocus True
-         ]
-            ++ fontStyles
-        )
-        []
+        div [ style "font-style" "italic", style "border" "1px solid black"  ]
+            [ 
+            button  [ onClick (SendColor "pink"), style "background-color" "pink",style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ],
+            button [ onClick (SendColor "lightblue"), style "background-color" "lightblue",style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ],
+            button [ onClick (SendColor "hotpink"), style "background-color" "hotpink",style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ],
+            button [ onClick (SendColor "lightgreen"), style "background-color" "lightgreen ",style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ],
+            button [ onClick (SendColor "silver"), style "background-color" "silver",style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ]
+            ]
+        
 
 
-viewMessage : ChatMsg -> Html msg
-viewMessage msg =
+viewColor : MessageType -> Html msg
+viewColor msg =
     case msg of
         Joined clientId ->
-            div [ style "font-style" "italic" ] [ text " " ]
+            span [ style "font-style" "italic" ] [ text " " ]
 
         Left clientId ->
-            div [ style "font-style" "italic" ] [ text " " ]
+            span [ style "font-style" "italic" ] [ text " " ]
 
         Message clientId message ->
-            span [ style "background-color" message  ][ text message ]
--- Message clientId message ->
---             span [ style "background-color" message  ][ text 
---             -- <| "[" ++ 
---             -- String.left 6 clientId ++
---             --  "]: " ++
---               message ]
+            span [ style "background-color" message,style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ]
 
 
 fontStyles : List (Html.Attribute msg)
@@ -136,26 +116,12 @@ fontStyles =
     [ style "font-family" "Helvetica", style "font-size" "14px", style "line-height" "1.5" ]
 
 
-scrollChatToBottom : Cmd FrontendMsg
-scrollChatToBottom =
+scrollColorsToBottom : Cmd FrontendMsg
+scrollColorsToBottom =
     Dom.getViewportOf "message-box"
         |> Task.andThen (\info -> Dom.setViewportOf "message-box" 0 info.scene.height)
         |> Task.attempt (\_ -> Noop)
 
 
-focusMessageInput : Cmd FrontendMsg
-focusMessageInput =
-    Task.attempt (always Noop) (Dom.focus "message-input")
 
 
-onEnter : FrontendMsg -> Html.Attribute FrontendMsg
-onEnter msg =
-    let
-        isEnter code =
-            if code == 13 then
-                D.succeed msg
-
-            else
-                D.fail "not ENTER"
-    in
-    on "keydown" (keyCode |> D.andThen isEnter)

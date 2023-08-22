@@ -4,17 +4,18 @@ import Lamdera exposing (ClientId, SessionId)
 
 
 type alias FrontendModel =
-    { messages : List ChatMsg, messageFieldContent : String }
+    { colors : List MessageType, messageFieldContent : String }
 
 
 type alias BackendModel =
-    { messages : List ChatMsg }
+    { colors : List MessageType }
 
 
 type FrontendMsg
-    = MessageFieldChanged String
-    | MessageSubmitted
+    = 
+     SendColor String
     | Noop
+
 
 
 type ToBackend
@@ -24,15 +25,16 @@ type ToBackend
 type BackendMsg
     = ClientConnected SessionId ClientId
     | ClientDisconnected SessionId ClientId
-    | BNoop
+    
 
 
 type ToFrontend
-    = HistoryReceived (List ChatMsg)
-    | MessageReceived ChatMsg
+    = HistoryReceived (List MessageType)
+    | MessageReceived MessageType
     
 
-type ChatMsg
-    = Joined ClientId
+type MessageType
+    = 
+    Joined ClientId
     | Left ClientId
     | Message ClientId String
