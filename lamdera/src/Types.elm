@@ -1,34 +1,38 @@
 module Types exposing (..)
 
-import Browser exposing (UrlRequest)
-import Browser.Navigation exposing (Key)
-import Url exposing (Url)
+import Lamdera exposing (ClientId, SessionId)
 
 
 type alias FrontendModel =
-    { key : Key
-    , message : String
-    }
+    { messages : List ChatMsg, messageFieldContent : String }
 
 
 type alias BackendModel =
-    { message : String
-    }
+    { messages : List ChatMsg }
 
 
 type FrontendMsg
-    = UrlClicked UrlRequest
-    | UrlChanged Url
-    | NoOpFrontendMsg
+    = MessageFieldChanged String
+    | MessageSubmitted
+    | Noop
 
 
 type ToBackend
-    = NoOpToBackend
+    = MsgSubmitted String
 
 
 type BackendMsg
-    = NoOpBackendMsg
+    = ClientConnected SessionId ClientId
+    | ClientDisconnected SessionId ClientId
+    | BNoop
 
 
 type ToFrontend
-    = NoOpToFrontend
+    = HistoryReceived (List ChatMsg)
+    | MessageReceived ChatMsg
+    
+
+type ChatMsg
+    = Joined ClientId
+    | Left ClientId
+    | Message ClientId String
