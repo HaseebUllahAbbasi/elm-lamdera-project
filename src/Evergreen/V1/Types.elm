@@ -11,7 +11,6 @@ type MessageType
 
 type alias FrontendModel =
     { colors : List MessageType
-    , messageFieldContent : String
     }
 
 

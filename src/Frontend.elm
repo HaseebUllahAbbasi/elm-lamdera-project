@@ -34,7 +34,7 @@ type alias Model =
 
 init : ( Model, Cmd FrontendMsg )
 init =
-    ( { colors = [], messageFieldContent = "" }, Cmd.none )
+    ( { colors = []  }, Cmd.none )
 
 
 
@@ -44,7 +44,7 @@ update msg model =
         
 
         SendColor color ->
-            ( { model | messageFieldContent = "", colors = model.colors }
+            ( {   colors = model.colors }
             , Cmd.batch
                 [ Lamdera.sendToBackend (MsgSubmitted color)
                 , scrollColorsToBottom

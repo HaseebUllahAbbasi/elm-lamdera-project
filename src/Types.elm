@@ -4,7 +4,7 @@ import Lamdera exposing (ClientId, SessionId)
 
 
 type alias FrontendModel =
-    { colors : List MessageType, messageFieldContent : String }
+    { colors : List MessageType }
 
 
 type alias BackendModel =
