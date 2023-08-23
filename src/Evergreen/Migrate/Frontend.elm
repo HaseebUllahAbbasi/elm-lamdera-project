@@ -81,12 +81,12 @@ view model =
                 , style "overflow" "auto"
                 -- , style "margin-bottom" "15px"
                 ]
-        , chatInput model SendColor
+        , colorPallate model SendColor
         ]
 
 
-chatInput : Model -> (String -> FrontendMsg) -> Html FrontendMsg
-chatInput model msg =
+colorPallate : Model -> (String -> FrontendMsg) -> Html FrontendMsg
+colorPallate model msg =
         div [ style "font-style" "italic", style "border" "1px solid black"  ]
             [ 
             button  [ onClick (SendColor "pink"), style "background-color" "pink",style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ],
@@ -107,8 +107,8 @@ viewColor msg =
         Left clientId ->
             span [ style "font-style" "italic" ] [ text " " ]
 
-        Message clientId message ->
-            span [ style "background-color" message,style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ]
+        Message clientId color ->
+            span [ style "background-color" color,style "border-radius" "30px",  style "min-width" "30px", style "min-height" "30px",style "display" "inline-block", style "margin" "10px"  ][ text "" ]
 
 
 fontStyles : List (Html.Attribute msg)
